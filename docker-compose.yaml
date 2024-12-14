@@ -1,0 +1,17 @@
+version: "4.36.0"
+
+services:
+  pg_db:
+    image: postgres:14:15-alpine321
+    restart: always
+    environment:
+      - POSTGRES_DB=danik_db
+      - POSTGRES_USER=danik
+      - POSTGRES_PASSWORD=danikmay
+    volumes:
+      - db:/var/lib/postgresql/data postgres
+    ports:
+      - "5432:5432"
+
+volumes:
+  db:
