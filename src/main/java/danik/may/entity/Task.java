@@ -19,7 +19,7 @@ public class Task {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_id_seq")
     @SequenceGenerator(name = "task_id_seq", sequenceName = "task_id_seq", allocationSize = 1)
-    private Long id;
+    private int id;
 
     @Column(name = "header", nullable = false)
     private String header;
@@ -32,9 +32,6 @@ public class Task {
 
     @Column(name = "priority", nullable = false)
     private String priority;
-
-    @Column(name = "comment", nullable = false)
-    private String comment;
 
     @Column(name = "author", nullable = false)
     private String author;
