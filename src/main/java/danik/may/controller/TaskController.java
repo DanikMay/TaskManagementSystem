@@ -38,7 +38,7 @@ public class TaskController {
 
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('ADMIN')")
-    //показывает задачу c заданным id
+    //показывает все задачи
     public List<Task> getAll() {
         return service.getAll();
     }
