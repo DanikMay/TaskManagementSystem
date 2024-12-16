@@ -8,7 +8,7 @@
 2) Для запуска приложения понадобится java17
 
 # Примеры запросов с данными на вход и выход
-1) http://localhost:8080/auth/sign-up - запрос на регистрацию пользоваетеля 
+1) http://localhost:8080/auth/sign-up - запрос на регистрацию пользоваетеля и получение JWT токена
 * Пример входных данных:
 ```json
 {
@@ -16,8 +16,14 @@
     "email": "danik@example.com",
     "password": "danikdanik"
 }
-  ```
-2) http://localhost:8080/auth/sign-in - запрос на авторизацию пользователя
+ ```
+* Пример выходных данных:
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsImlkIjo1LCJlbWFpbCI6ImRhbmlrQGV4YW1wbGUuY29tIiwic3ViIjoiZGFuaWsiLCJpYXQiOjE3MzQzODc5NzcsImV4cCI6MTczNDUzMTk3N30.kuJSWbTeTRckz3TTk5UMO3bm4si4xiomQ6vsBqAjCnY"
+}
+```
+2) http://localhost:8080/auth/sign-in - запрос на авторизацию пользователя и получение JWT токена
 * Пример входных данных:
 ```json
 {
@@ -25,11 +31,17 @@
     "password": "danikdanik"
 }
 ```
-3) http://localhost:8080/example - запрос на проверку успешной авторизации
+* Пример выходных данных:
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsImlkIjo1LCJlbWFpbCI6ImRhbmlrQGV4YW1wbGUuY29tIiwic3ViIjoiZGFuaWsiLCJpYXQiOjE3MzQzODgxNjMsImV4cCI6MTczNDUzMjE2M30._olDEbh52I6xrJaqEIBJCJINTDa0IE-OpSNp-r37zSY"
+}
+```
+3) http://localhost:8080/check - запрос на проверку успешной авторизации
 * Выходные данные:
 > Hello, world!
-4) http://localhost:8080/example/get-admin - запрос на получения роли админа
-5) http://localhost:8080/example/admin - запрос на проверку получения роли админа
+4) http://localhost:8080/check/get-admin - запрос на получения роли админа
+5) http://localhost:8080/check/admin - запрос на проверку получения роли админа
 * Выходные данные:
 > Hello, admin!
 6) http://localhost:8080/task/create - запрос на добавление задачи 

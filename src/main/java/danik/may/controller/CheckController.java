@@ -10,22 +10,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/example")
+@RequestMapping("/check")
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация")
-public class ExampleController {
+public class CheckController {
     private final UserService service;
 
     @GetMapping
     @Operation(summary = "Доступен только авторизованным пользователям")
-    public String example() {
+    public String checkAuth() {
         return "Hello, world!";
     }
 
     @GetMapping("/admin")
     @Operation(summary = "Доступен только авторизованным пользователям с ролью ADMIN")
     @PreAuthorize("hasRole('ADMIN')")
-    public String exampleAdmin() {
+    public String checkAdmin() {
         return "Hello, admin!";
     }
 
