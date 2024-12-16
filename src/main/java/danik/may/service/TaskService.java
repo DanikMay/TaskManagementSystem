@@ -1,12 +1,13 @@
 package danik.may.service;
 
+import danik.may.dto.UpdateTaskRequest;
 import danik.may.entity.Task;
+import danik.may.mapper.TaskMapper;
 import danik.may.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,10 +18,10 @@ public class TaskService {
         repository.save(task);
     }
 
-    public Task get(Integer taskId) {
+    public Task get(int id) {
         Task resultTask = new Task();
-        if(repository.existsById(taskId)) {
-            resultTask = repository.findById(taskId).get();
+        if(repository.existsById(id)) {
+            resultTask = repository.findById(id);
         }
         return resultTask;
     }
@@ -29,13 +30,24 @@ public class TaskService {
         return repository.findAll();
     }
 
-    public String delete(Integer taskId) {
-        String result = String.format("Задача с id: %d не найдена", taskId);
-        if(repository.existsById(taskId)) {
-            repository.deleteById(taskId);
-            result = String.format("Задача с id: %d успешно удалена", taskId);
+    public String delete(int id) {
+        String result = String.format("Задача с id: %d не найдена", id);
+        if(repository.existsById(id)) {
+            repository.deleteById(id);
+            result = String.format("Задача с id: %d успешно удалена", id);
         }
         return  result;
+    }
+
+    public String update(UpdateTaskRequest updateTaskRequest) {
+        String result = String.format("Задача с id: %d не найдена", updateTaskRequest.getId());
+        if(repository.existsById(updateTaskRequest.getId())) {
+            Task task = repository.findById(updateTaskRequest.getId());
+            TaskMapper.UpdateTask(task, updateTaskRequest);
+            repository.save(task);
+            result = String.format("Задача с id: %d успешно обновлена", updateTaskRequest.getId());
+        }
+        return result;
     }
 }
 

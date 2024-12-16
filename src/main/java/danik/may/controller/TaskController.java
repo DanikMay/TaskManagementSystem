@@ -1,9 +1,12 @@
 package danik.may.controller;
 
+import danik.may.dto.TaskIdRequest;
+import danik.may.dto.UpdateTaskRequest;
 import danik.may.entity.Task;
 import danik.may.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +30,8 @@ public class TaskController {
     @PostMapping("/get")
     @PreAuthorize("hasRole('ADMIN')")
     //показывает задачу c заданным id
-    public Task get(@RequestBody Integer taskId) {
-        return service.get(taskId);
+    public Task get(@RequestBody TaskIdRequest taskIdRequest) {
+        return service.get(taskIdRequest.getId());
     }
 
     @GetMapping("/get-all")
@@ -39,17 +42,16 @@ public class TaskController {
     }
 
 
-    @PostMapping("/update")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/update")
     //обновляет задачу на основе JSON
-    public void update(@RequestBody Task task) {
-
+    public String update(@RequestBody @Valid UpdateTaskRequest updateTaskRequest) {
+        return service.update(updateTaskRequest);
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     @PreAuthorize("hasRole('ADMIN')")
     //удаляет задачу с заданным id
-    public String delete(@RequestBody Integer taskId) {
-        return service.delete(taskId);
+    public String delete(@RequestBody TaskIdRequest taskIdRequest) {
+        return service.delete(taskIdRequest.getId());
     }
 }
