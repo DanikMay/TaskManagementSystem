@@ -4,6 +4,7 @@ import danik.may.dto.TaskIdRequest;
 import danik.may.dto.UpdateTaskRequest;
 import danik.may.entity.Task;
 import danik.may.service.TaskService;
+import danik.may.validator.TaskByRoleValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import java.util.List;
 @Tag(name = "Работа с задачами")
 public class TaskController {
     private final TaskService service;
+    private final TaskByRoleValidator validator;
     @Operation(summary = "Создание задачи")
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
@@ -45,7 +47,11 @@ public class TaskController {
     @PatchMapping("/update")
     //обновляет задачу на основе JSON
     public String update(@RequestBody @Valid UpdateTaskRequest updateTaskRequest) {
-        return service.update(updateTaskRequest);
+        String message = validator.getPermission(updateTaskRequest);
+        if(message.equals(validator.SUCCESS)) {
+            message += service.update(updateTaskRequest);
+        }
+        return message;
     }
 
     @DeleteMapping("/delete")
