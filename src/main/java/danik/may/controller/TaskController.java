@@ -44,7 +44,7 @@ public class TaskController {
     }
 
 
-    @PatchMapping("/update")
+    @PostMapping("/update")
     @Operation(summary = "Обновление задачи на основе JSON")
     public String update(@RequestBody @Valid UpdateTaskRequest updateTaskRequest) {
         String message = validator.getPermission(updateTaskRequest);
@@ -54,7 +54,7 @@ public class TaskController {
         return message;
     }
 
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     @Operation(summary = "Удаление задачи с заданным id")
     @PreAuthorize("hasRole('ADMIN')")
     public String delete(@RequestBody TaskIdRequest taskIdRequest) {
