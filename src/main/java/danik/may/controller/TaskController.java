@@ -31,7 +31,6 @@ public class TaskController {
 
     @PostMapping("/get")
     @Operation(summary = "Просмотр задач c заданным id")
-    @PreAuthorize("hasRole('ADMIN')")
     public Task get(@RequestBody TaskIdRequest taskIdRequest) {
         return service.get(taskIdRequest.getId());
     }
