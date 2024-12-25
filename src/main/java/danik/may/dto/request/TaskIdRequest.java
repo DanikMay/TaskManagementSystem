@@ -1,4 +1,4 @@
-package danik.may.dto;
+package danik.may.dto.request;
 
 import lombok.*;
 

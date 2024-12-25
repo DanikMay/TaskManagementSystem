@@ -36,6 +36,6 @@ public class Task {
     @Column(name = "author", nullable = false)
     private String author;
 
-    @Column(name = "executor", nullable = false)
-    private String executor;
+    @Column(name = "implementer", nullable = false)
+    private String implementer;
 }

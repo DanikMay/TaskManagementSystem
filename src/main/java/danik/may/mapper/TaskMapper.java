@@ -1,10 +1,12 @@
 package danik.may.mapper;
 
-import danik.may.dto.UpdateTaskRequest;
+import danik.may.dto.request.TaskRequest;
+import danik.may.dto.response.TaskBody;
+import danik.may.dto.response.TaskResponse;
 import danik.may.entity.Task;
 
 public class TaskMapper {
-    public static void UpdateTask(Task currentTask, UpdateTaskRequest updateTask) {
+    public static void map(Task currentTask, TaskRequest updateTask) {
         if (updateTask.getHeader() != null) {
             currentTask.setHeader(updateTask.getHeader());
         }
@@ -20,8 +22,19 @@ public class TaskMapper {
         if (updateTask.getAuthor() != null) {
             currentTask.setAuthor(updateTask.getAuthor());
         }
-        if (updateTask.getExecutor() != null) {
-            currentTask.setExecutor(updateTask.getExecutor());
+        if (updateTask.getImplementer() != null) {
+            currentTask.setImplementer(updateTask.getImplementer());
         }
+    }
+
+    public static void map(Task task, TaskResponse response) {
+        response.setBody(new TaskBody());
+        response.getBody().setId(task.getId());
+        response.getBody().setHeader(task.getHeader());
+        response.getBody().setDescription(task.getDescription());
+        response.getBody().setStatus(task.getStatus());
+        response.getBody().setPriority(task.getPriority());
+        response.getBody().setAuthor(task.getAuthor());
+        response.getBody().setImplementer(task.getImplementer());
     }
 }

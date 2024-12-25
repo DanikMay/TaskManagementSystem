@@ -1,13 +1,14 @@
 package danik.may.controller;
 
-import danik.may.dto.TaskIdRequest;
-import danik.may.dto.UpdateTaskRequest;
+import danik.may.dto.request.TaskIdRequest;
+import danik.may.dto.request.TaskRequest;
+import danik.may.dto.response.OperationStatusResponse;
+import danik.may.dto.response.TaskResponse;
 import danik.may.entity.Task;
 import danik.may.service.TaskService;
-import danik.may.validator.TaskByRoleValidator;
+import danik.may.validator.TaskValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,19 +21,20 @@ import java.util.List;
 @Tag(name = "Работа с задачами")
 public class TaskController {
     private final TaskService service;
-    private final TaskByRoleValidator validator;
+    private final TaskValidator validator;
 
     @PostMapping("/create")
     @Operation(summary = "Создание задачи на основе JSON")
     @PreAuthorize("hasRole('ADMIN')")
-    public void create(@RequestBody Task task) {
-        service.save(task);
+    public OperationStatusResponse create(@RequestBody TaskRequest taskRequest) {
+
+        return service.save(taskRequest);
     }
 
     @PostMapping("/get")
     @Operation(summary = "Просмотр задач c заданным id")
-    public Task get(@RequestBody TaskIdRequest taskIdRequest) {
-        return service.get(taskIdRequest.getId());
+    public TaskResponse get(@RequestBody TaskIdRequest taskIdRequest) {
+        return service.get(taskIdRequest);
     }
 
     @GetMapping("/get-all")
@@ -45,18 +47,14 @@ public class TaskController {
 
     @PostMapping("/update")
     @Operation(summary = "Обновление задачи на основе JSON")
-    public String update(@RequestBody @Valid UpdateTaskRequest updateTaskRequest) {
-        String message = validator.getPermission(updateTaskRequest);
-        if (message.equals(validator.SUCCESS)) {
-            message += service.update(updateTaskRequest);
-        }
-        return message;
+    public OperationStatusResponse update(@RequestBody TaskRequest taskRequest) {
+        return service.update(taskRequest);
     }
 
     @PostMapping("/delete")
     @Operation(summary = "Удаление задачи с заданным id")
     @PreAuthorize("hasRole('ADMIN')")
-    public String delete(@RequestBody TaskIdRequest taskIdRequest) {
-        return service.delete(taskIdRequest.getId());
+    public OperationStatusResponse delete(@RequestBody TaskIdRequest taskIdRequest) {
+        return service.delete(taskIdRequest);
     }
 }

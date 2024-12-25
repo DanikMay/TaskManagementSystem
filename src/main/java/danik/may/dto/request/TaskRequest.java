@@ -1,4 +1,4 @@
-package danik.may.dto;
+package danik.may.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,12 +10,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UpdateTaskRequest {
+public class TaskRequest {
     private int id;
     private String header;
     private String description;
     private String status;
     private String priority;
     private String author;
-    private String executor;
+    private String implementer;
 }
