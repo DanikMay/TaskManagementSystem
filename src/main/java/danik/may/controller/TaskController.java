@@ -6,7 +6,6 @@ import danik.may.dto.response.OperationStatusResponse;
 import danik.may.dto.response.TaskResponse;
 import danik.may.entity.Task;
 import danik.may.service.TaskService;
-import danik.may.validator.TaskValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import java.util.List;
 @Tag(name = "Работа с задачами")
 public class TaskController {
     private final TaskService service;
-    private final TaskValidator validator;
 
     @PostMapping("/create")
     @Operation(summary = "Создание задачи на основе JSON")
