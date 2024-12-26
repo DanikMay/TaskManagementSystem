@@ -1,87 +1,119 @@
 package danik.may.service;
 
-import danik.may.dto.request.TaskIdRequest;
-import danik.may.dto.request.TaskRequest;
-import danik.may.dto.response.Error;
-import danik.may.dto.response.OperationStatusResponse;
-import danik.may.dto.response.TaskResponse;
+import danik.may.dto.request.task.TaskCreateRequest;
+import danik.may.dto.request.task.TaskIdRequest;
+import danik.may.dto.request.task.TaskUpdateRequest;
+import danik.may.dto.response.op_status.OperationStatus;
+import danik.may.dto.response.task.AllTaskResponse;
+import danik.may.dto.response.task.TaskBody;
+import danik.may.dto.response.task.TaskResponse;
 import danik.may.entity.Task;
+import danik.may.mapper.TaskMapper;
 import danik.may.repository.TaskRepository;
-import danik.may.validator.TaskValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
+
+import java.util.ArrayList;
 
 import static danik.may.mapper.TaskMapper.map;
+import static danik.may.provider.OperationStatusProvider.*;
+import static danik.may.validator.TaskValidator.getPermissionToUpdate;
 
+/**
+ * Обрабатывает запросы и формирует ответы для CRUD-операций над задачами
+ */
 @Service
 @RequiredArgsConstructor
 public class TaskService {
-    private final TaskRepository repository;
-    private final TaskValidator validator;
+    private final TaskRepository repo;
+    private final UserService userService;
 
-    public OperationStatusResponse save(TaskRequest taskRequest) {
-        OperationStatusResponse operationStatus = new OperationStatusResponse();
+    /**
+     * Создаёт задачу, если юзер - админ, и формирует ответ
+     *
+     * @param taskCreateRequest данные для создания
+     * @return ответ с данными об ошибке и статусе операции
+     */
+    public OperationStatus create(TaskCreateRequest taskCreateRequest) {
         Task task = new Task();
-        map(task, taskRequest);
-        repository.save(task);
-        operationStatus.setSuccess(true);
-        return operationStatus;
+        map(task, taskCreateRequest);
+        repo.save(task);
+
+        return getSuccessOp();
     }
 
+    /**
+     * Достаёт задачу по id, если юзер - админ или исполнитель, и формирует ответ
+     *
+     * @param taskIdRequest id
+     * @return ответ с данными о задаче, и об ошибке и статусе операции
+     */
     public TaskResponse get(TaskIdRequest taskIdRequest) {
         int id = taskIdRequest.getId();
-        TaskResponse taskResponse = new TaskResponse();
-        if (repository.existsById(id)) {
-            map(repository.findById(id), taskResponse);
-            taskResponse.setSuccess(true);
+        TaskResponse taskResponse = new TaskResponse(new TaskBody());
+
+        if (repo.existsById(id)) {
+            map(repo.findById(id), taskResponse.getBody());
+            taskResponse.setOperationStatus(getSuccessOp());
         } else {
-            taskResponse.setSuccess(false);
-            Error error = new Error();
-            error.setTitle("Ошибка базы данных");
-            error.setText(String.format("Задача с id: %d не найдена", id));
-            taskResponse.setError(new Error());
+            taskResponse.setOperationStatus(getDataBaseErrorOp(id));
         }
+
         return taskResponse;
     }
 
-    public List<Task> getAll() {
-        return repository.findAll();
+    /**
+     * Достаёт список задач, для админа или исполнителя, и формирует ответ
+     *
+     * @return ответ с данными о задачах, и об ошибке и статусе операции
+     */
+    public AllTaskResponse getAll() {
+        AllTaskResponse allTaskResponse = new AllTaskResponse(new ArrayList<>());
+        map(repo.findAll(), allTaskResponse.getBody());
+        return allTaskResponse;
     }
 
-    public OperationStatusResponse delete(TaskIdRequest taskIdRequest) {
-        int id = taskIdRequest.getId();
-        OperationStatusResponse operationStatus = new OperationStatusResponse();
+    /**
+     * Обновляет задачу, если юзер - админ или исполнитель, и формирует ответ
+     *
+     * @param taskRequest данные для обновления задачи
+     * @return ответ с данными об ошибке и статусе операции
+     */
+    public OperationStatus update(TaskUpdateRequest taskRequest) {
+        int id = taskRequest.getId();
+        OperationStatus operationStatus = getSuccessOp();
 
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            operationStatus.setSuccess(true);
+        if (getPermissionToUpdate(taskRequest, userService.getCurrentUser().getRole())) {
+            if (repo.existsById(id)) {
+                Task task = repo.findById(id);
+                TaskMapper.map(task, taskRequest);
+                repo.save(task);
+            } else {
+                operationStatus = getDataBaseErrorOp(id);
+            }
         } else {
-            operationStatus.setSuccess(false);
-            Error error = new Error();
-            error.setTitle("Ошибка базы данных");
-            error.setText(String.format("Задача с id: %d не найдена", id));
-            operationStatus.setError(new Error());
+            operationStatus = getInvalidTaskRequestErrorOp(userService.getCurrentUser().getUsername());
         }
+
         return operationStatus;
     }
 
-    public OperationStatusResponse update(TaskRequest taskRequest) {
-        int id = taskRequest.getId();
-        OperationStatusResponse operationStatus = validator.getPermissionForUpdate(taskRequest);
-        if (operationStatus.isSuccess()) {
-            if (repository.existsById(id)) {
-                Task task = repository.findById(id);
-                map(task, taskRequest);
-                repository.save(task);
-            } else {
-                operationStatus.setSuccess(false);
-                Error error = new Error();
-                error.setTitle("Ошибка базы данных");
-                error.setText(String.format("Задача с id: %d не найдена", id));
-                operationStatus.setError(new Error());
-            }
+    /**
+     * Удаляет задачу по id, если юзер - админ, и формирует ответ
+     *
+     * @param taskIdRequest id
+     * @return ответ с данными об ошибке и статусе операции
+     */
+    public OperationStatus delete(TaskIdRequest taskIdRequest) {
+        int id = taskIdRequest.getId();
+        OperationStatus operationStatus = getSuccessOp();
+
+        if (repo.existsById(id)) {
+            repo.deleteById(id);
+        } else {
+            operationStatus = getDataBaseErrorOp(id);
         }
+
         return operationStatus;
     }
 }

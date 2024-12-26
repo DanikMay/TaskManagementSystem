@@ -1,40 +1,85 @@
 package danik.may.mapper;
 
-import danik.may.dto.request.TaskRequest;
-import danik.may.dto.response.TaskBody;
-import danik.may.dto.response.TaskResponse;
+import danik.may.dto.request.task.TaskCreateRequest;
+import danik.may.dto.request.task.TaskUpdateRequest;
+import danik.may.dto.response.task.TaskBody;
 import danik.may.entity.Task;
 
+import java.util.List;
+
+/**
+ * Преобразует данные связанные с задачами
+ */
 public class TaskMapper {
-    public static void map(Task currentTask, TaskRequest updateTask) {
-        if (updateTask.getHeader() != null) {
-            currentTask.setHeader(updateTask.getHeader());
+    /**
+     * Обновляет поля задачи данными из запроса, если данные не null
+     *
+     * @param task              текущие данные
+     * @param taskUpdateRequest данные для обновления
+     */
+    public static void map(Task task, TaskUpdateRequest taskUpdateRequest) {
+        if (taskUpdateRequest.getHeader() != null) {
+            task.setHeader(taskUpdateRequest.getHeader());
         }
-        if (updateTask.getDescription() != null) {
-            currentTask.setDescription(updateTask.getDescription());
+        if (taskUpdateRequest.getDescription() != null) {
+            task.setDescription(taskUpdateRequest.getDescription());
         }
-        if (updateTask.getStatus() != null) {
-            currentTask.setStatus(updateTask.getStatus());
+        if (taskUpdateRequest.getStatus() != null) {
+            task.setStatus(taskUpdateRequest.getStatus());
         }
-        if (updateTask.getPriority() != null) {
-            currentTask.setPriority(updateTask.getPriority());
+        if (taskUpdateRequest.getPriority() != null) {
+            task.setPriority(taskUpdateRequest.getPriority());
         }
-        if (updateTask.getAuthor() != null) {
-            currentTask.setAuthor(updateTask.getAuthor());
+        if (taskUpdateRequest.getAuthor() != null) {
+            task.setAuthor(taskUpdateRequest.getAuthor());
         }
-        if (updateTask.getImplementer() != null) {
-            currentTask.setImplementer(updateTask.getImplementer());
+        if (taskUpdateRequest.getImplementer() != null) {
+            task.setImplementer(taskUpdateRequest.getImplementer());
         }
     }
 
-    public static void map(Task task, TaskResponse response) {
-        response.setBody(new TaskBody());
-        response.getBody().setId(task.getId());
-        response.getBody().setHeader(task.getHeader());
-        response.getBody().setDescription(task.getDescription());
-        response.getBody().setStatus(task.getStatus());
-        response.getBody().setPriority(task.getPriority());
-        response.getBody().setAuthor(task.getAuthor());
-        response.getBody().setImplementer(task.getImplementer());
+    /**
+     * Заполняет поля ответа данными из задачи
+     *
+     * @param task     данные задачи
+     * @param taskBody объект для отправки ответа
+     */
+    public static void map(Task task, TaskBody taskBody) {
+        taskBody.setId(task.getId());
+        taskBody.setHeader(task.getHeader());
+        taskBody.setDescription(task.getDescription());
+        taskBody.setStatus(task.getStatus());
+        taskBody.setPriority(task.getPriority());
+        taskBody.setAuthor(task.getAuthor());
+        taskBody.setImplementer(task.getImplementer());
+    }
+
+    /**
+     * Заполняет поля задачи данными из запроса
+     *
+     * @param task              сущность для создания задачи
+     * @param taskCreateRequest данные для создания
+     */
+    public static void map(Task task, TaskCreateRequest taskCreateRequest) {
+        task.setHeader(taskCreateRequest.getHeader());
+        task.setHeader(taskCreateRequest.getDescription());
+        task.setHeader(taskCreateRequest.getStatus());
+        task.setHeader(taskCreateRequest.getPriority());
+        task.setHeader(taskCreateRequest.getAuthor());
+        task.setHeader(taskCreateRequest.getImplementer());
+    }
+
+    /**
+     * Заполняет ответ, задачами из списка
+     *
+     * @param taskList задачи
+     * @param body     объект для отправки ответа
+     */
+    public static void map(List<Task> taskList, List<TaskBody> body) {
+        for (Task task : taskList) {
+            TaskBody taskBody = new TaskBody();
+            map(task, new TaskBody());
+            body.add(taskBody);
+        }
     }
 }

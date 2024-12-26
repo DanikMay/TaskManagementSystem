@@ -1,6 +1,5 @@
-package danik.may.dto.response;
+package danik.may.dto.response.op_status;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

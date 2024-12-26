@@ -1,8 +1,8 @@
 package danik.may.controller;
 
 import danik.may.dto.response.JwtAuthenticationResponse;
-import danik.may.dto.request.SignInRequest;
-import danik.may.dto.request.SignUpRequest;
+import danik.may.dto.request.auth.SignInRequest;
+import danik.may.dto.request.auth.SignUpRequest;
 import danik.may.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

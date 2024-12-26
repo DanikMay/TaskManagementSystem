@@ -1,17 +1,13 @@
-package danik.may.dto.request;
+package danik.may.dto.request.task;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class TaskRequest {
-    private int id;
+public class TaskCreateRequest {
     private String header;
     private String description;
     private String status;
