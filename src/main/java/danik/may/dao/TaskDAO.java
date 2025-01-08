@@ -51,7 +51,11 @@ public class TaskDAO {
         return taskList;
     }
 
-    //Обновляет задачу, если задача с таким id существует, иначе возбуждает исключение
+    /*
+   Обновляет задачу по id для Админа или Юзера
+   Если задача с таким id не найдена возбуждается исключение
+   Если это юзер, делается проверка на исполнителя, если проверка провалена, возбуждается исключение
+   */
     public void update(UpdateTaskRequest request, boolean isAdmin, String userName) throws RuntimeException {
         int id = request.getId();
 
