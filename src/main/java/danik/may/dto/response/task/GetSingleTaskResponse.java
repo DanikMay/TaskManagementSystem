@@ -1,19 +1,17 @@
 package danik.may.dto.response.task;
 
-import danik.may.dto.response.op_status.OperationStatus;
+import danik.may.dto.response.task.op_status.OperationStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @NoArgsConstructor
 @Getter
 @Setter
-public class AllTaskResponse {
+public class GetSingleTaskResponse {
     private OperationStatus operationStatus;
-    private List<TaskBody> body;
-    public AllTaskResponse(List<TaskBody> body) {
+    private TaskBody body;
+    public GetSingleTaskResponse(TaskBody body) {
         this.body = body;
     }
 }

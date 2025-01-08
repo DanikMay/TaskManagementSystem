@@ -1,9 +1,9 @@
-package danik.may.provider;
+package danik.may.util;
 
-import danik.may.dto.response.op_status.Error;
-import danik.may.dto.response.op_status.OperationStatus;
+import danik.may.dto.response.task.op_status.Error;
+import danik.may.dto.response.task.op_status.OperationStatus;
 
-public class OperationStatusProvider {
+public class OperationStatusUtil {
     public static OperationStatus getSuccessOp() {
         OperationStatus operationStatus = new OperationStatus();
         operationStatus.setSuccess(true);
@@ -18,7 +18,7 @@ public class OperationStatusProvider {
         Error error = new Error();
         error.setTitle("Ошибка базы данных");
         error.setText(String.format("Задача с id: %d не найдена", id));
-        operationStatus.setError(new Error());
+        operationStatus.setError(error);
 
         return operationStatus;
     }
@@ -42,7 +42,7 @@ public class OperationStatusProvider {
 
         Error error = new Error();
         error.setTitle("Ошибка доступа");
-        error.setText(String.format("У пользователя с именем: %s нет права на доступ к задаче с id: %d", userName, id));
+        error.setText(String.format("У пользователя с именем: %s нет прав на доступ к задаче с id: %d", userName, id));
         operationStatus.setError(error);
 
         return operationStatus;

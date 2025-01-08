@@ -1,23 +1,20 @@
 package danik.may.service;
 
-import danik.may.dto.request.task.TaskCreateRequest;
+import danik.may.dao.TaskDAO;
+import danik.may.dto.request.task.CreateTaskRequest;
 import danik.may.dto.request.task.TaskIdRequest;
-import danik.may.dto.request.task.TaskUpdateRequest;
-import danik.may.dto.response.op_status.OperationStatus;
-import danik.may.dto.response.task.AllTaskResponse;
-import danik.may.dto.response.task.TaskBody;
-import danik.may.dto.response.task.TaskResponse;
+import danik.may.dto.request.task.UpdateTaskRequest;
+import danik.may.dto.response.task.*;
+import danik.may.entity.Role;
 import danik.may.entity.Task;
-import danik.may.mapper.TaskMapper;
-import danik.may.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static danik.may.mapper.TaskMapper.map;
-import static danik.may.provider.OperationStatusProvider.*;
-import static danik.may.validator.TaskValidator.getPermissionToUpdate;
+import static danik.may.util.OperationStatusUtil.*;
+import static danik.may.validator.TaskValidator.isValid;
 
 /**
  * Обрабатывает запросы и формирует ответы для CRUD-операций над задачами
@@ -25,21 +22,22 @@ import static danik.may.validator.TaskValidator.getPermissionToUpdate;
 @Service
 @RequiredArgsConstructor
 public class TaskService {
-    private final TaskRepository repo;
+    private final TaskDAO dao;
     private final UserService userService;
 
     /**
      * Создаёт задачу, если юзер - админ, и формирует ответ
      *
-     * @param taskCreateRequest данные для создания
+     * @param createTaskRequest данные для создания
      * @return ответ с данными об ошибке и статусе операции
      */
-    public OperationStatus create(TaskCreateRequest taskCreateRequest) {
+    public CreateTaskResponse create(CreateTaskRequest createTaskRequest) {
         Task task = new Task();
-        map(task, taskCreateRequest);
-        repo.save(task);
 
-        return getSuccessOp();
+        map(task, createTaskRequest);
+        dao.create(task);
+
+        return new CreateTaskResponse(getSuccessOp());
     }
 
     /**
@@ -48,18 +46,18 @@ public class TaskService {
      * @param taskIdRequest id
      * @return ответ с данными о задаче, и об ошибке и статусе операции
      */
-    public TaskResponse get(TaskIdRequest taskIdRequest) {
-        int id = taskIdRequest.getId();
-        TaskResponse taskResponse = new TaskResponse(new TaskBody());
+    public GetSingleTaskResponse get(TaskIdRequest taskIdRequest) {
+        GetSingleTaskResponse singleTaskResponse = new GetSingleTaskResponse();
 
-        if (repo.existsById(id)) {
-            map(repo.findById(id), taskResponse.getBody());
-            taskResponse.setOperationStatus(getSuccessOp());
-        } else {
-            taskResponse.setOperationStatus(getDataBaseErrorOp(id));
+        try {
+            Task task = dao.get(taskIdRequest, isAdmin(), getUsername());
+            map(task, singleTaskResponse);
+            singleTaskResponse.setOperationStatus(getSuccessOp());
+        } catch (RuntimeException ex) {
+            singleTaskResponse.setOperationStatus(getDataBaseErrorOp(taskIdRequest.getId()));
         }
 
-        return taskResponse;
+        return singleTaskResponse;
     }
 
     /**
@@ -67,35 +65,36 @@ public class TaskService {
      *
      * @return ответ с данными о задачах, и об ошибке и статусе операции
      */
-    public AllTaskResponse getAll() {
-        AllTaskResponse allTaskResponse = new AllTaskResponse(new ArrayList<>());
-        map(repo.findAll(), allTaskResponse.getBody());
+    public GetAllTaskResponse getAll() {
+        GetAllTaskResponse allTaskResponse = new GetAllTaskResponse();
+
+        List<Task> taskList = dao.getAll(isAdmin(), getUsername());
+        map(taskList, allTaskResponse);
+        allTaskResponse.setOperationStatus(getSuccessOp());
+
         return allTaskResponse;
     }
 
     /**
      * Обновляет задачу, если юзер - админ или исполнитель, и формирует ответ
      *
-     * @param taskRequest данные для обновления задачи
+     * @param updateTaskRequest данные для обновления задачи
      * @return ответ с данными об ошибке и статусе операции
      */
-    public OperationStatus update(TaskUpdateRequest taskRequest) {
-        int id = taskRequest.getId();
-        OperationStatus operationStatus = getSuccessOp();
+    public UpdateTaskResponse update(UpdateTaskRequest updateTaskRequest) {
+        UpdateTaskResponse updateTaskResponse = new UpdateTaskResponse(getSuccessOp());
 
-        if (getPermissionToUpdate(taskRequest, userService.getCurrentUser().getRole())) {
-            if (repo.existsById(id)) {
-                Task task = repo.findById(id);
-                TaskMapper.map(task, taskRequest);
-                repo.save(task);
-            } else {
-                operationStatus = getDataBaseErrorOp(id);
+        if (isValid(updateTaskRequest, isAdmin())) {
+            try {
+                dao.update(updateTaskRequest, isAdmin(), getUsername());
+            } catch (RuntimeException ex) {
+                updateTaskResponse.setOperationStatus(getDataBaseErrorOp(updateTaskRequest.getId()));
             }
         } else {
-            operationStatus = getInvalidTaskRequestErrorOp(userService.getCurrentUser().getUsername());
+            updateTaskResponse.setOperationStatus(getInvalidTaskRequestErrorOp(getUsername()));
         }
 
-        return operationStatus;
+        return updateTaskResponse;
     }
 
     /**
@@ -104,17 +103,25 @@ public class TaskService {
      * @param taskIdRequest id
      * @return ответ с данными об ошибке и статусе операции
      */
-    public OperationStatus delete(TaskIdRequest taskIdRequest) {
-        int id = taskIdRequest.getId();
-        OperationStatus operationStatus = getSuccessOp();
+    public DeleteTaskResponse delete(TaskIdRequest taskIdRequest) {
+        DeleteTaskResponse deleteTaskResponse = new DeleteTaskResponse(getSuccessOp());
 
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-        } else {
-            operationStatus = getDataBaseErrorOp(id);
+        try {
+            dao.delete(taskIdRequest);
+            deleteTaskResponse.setOperationStatus(getSuccessOp());
+        } catch (RuntimeException ex) {
+            deleteTaskResponse.setOperationStatus(getDataBaseErrorOp(taskIdRequest.getId()));
         }
 
-        return operationStatus;
+        return deleteTaskResponse;
+    }
+
+    public boolean isAdmin() {
+        return userService.getCurrentUser().getRole().equals(Role.ROLE_ADMIN);
+    }
+
+    public String getUsername() {
+        return userService.getCurrentUser().getUsername();
     }
 }
 

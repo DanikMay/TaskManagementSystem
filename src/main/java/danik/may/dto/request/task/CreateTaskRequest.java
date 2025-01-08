@@ -7,8 +7,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TaskUpdateRequest {
-    private int id;
+public class CreateTaskRequest {
     private String header;
     private String description;
     private String status;
