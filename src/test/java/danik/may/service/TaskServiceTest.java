@@ -168,13 +168,14 @@ class TaskServiceTest {
                 "alex", 1);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder().id(1).status("Done").build();
+        Task task = Task.builder().id(1).status("Done").build();
 
         User user = User.builder().username("alex").role(Role.ROLE_USER).email("alex@example.com").build();
         boolean isAdmin = false;
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        doThrow(new RuntimeException()).when(dao).update(updateTaskRequest, isAdmin, user.getUsername());
+        doThrow(new RuntimeException()).when(dao).update(task, isAdmin, user.getUsername());
 
         //Then
         UpdateTaskResponse updateTaskResponse = taskService.update(updateTaskRequest);
@@ -188,13 +189,14 @@ class TaskServiceTest {
     void updateByImplementer() {
         //Given
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder().id(1).status("Done").build();
+        Task task = Task.builder().id(1).status("Done").build();
 
         User user = User.builder().username("alex").role(Role.ROLE_USER).email("alex@example.com").build();
         boolean isAdmin = false;
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        doNothing().when(dao).update(updateTaskRequest, isAdmin, user.getUsername());
+        doNothing().when(dao).update(task, isAdmin, user.getUsername());
 
         //Then
         UpdateTaskResponse updateTaskResponse = taskService.update(updateTaskRequest);
@@ -213,13 +215,20 @@ class TaskServiceTest {
                 .status("Done")
                 .priority("High")
                 .build();
+        Task task = Task.builder()
+                .id(2)
+                .header("header2")
+                .description("description2")
+                .status("Done")
+                .priority("High")
+                .build();
 
         User user = User.builder().username("alex").role(Role.ROLE_USER).email("alex@example.com").build();
         boolean isAdmin = false;
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        doThrow(new RuntimeException()).when(dao).update(updateTaskRequest, isAdmin, user.getUsername());
+        doThrow(new RuntimeException()).when(dao).update(task, isAdmin, user.getUsername());
 
         //Then
         UpdateTaskResponse updateTaskResponse = taskService.update(updateTaskRequest);

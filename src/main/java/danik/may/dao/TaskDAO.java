@@ -56,14 +56,16 @@ public class TaskDAO {
    Если задача с таким id не найдена возбуждается исключение
    Если это юзер, делается проверка на исполнителя, если проверка провалена, возбуждается исключение
    */
-    public void update(UpdateTaskRequest request, boolean isAdmin, String userName) throws RuntimeException {
-        int id = request.getId();
+    public void update(Task task, boolean isAdmin, String userName) throws RuntimeException {
+        int id = task.getId();
 
-        if (repo.existsById(request.getId())) {
+        if (repo.existsById(task.getId())) {
             if (isAdmin || repo.isImplementer(id, userName)) {
-                Task task = repo.findById(id);
-                TaskMapper.map(task, request);
-                repo.save(task);
+                repo.update(task.getId(), task.getHeader(), task.getDescription(), task.getPriority(), task.getStatus(),
+                        task.getAuthor(), task.getImplementer());
+//                Task task = repo.findById(id);
+//                TaskMapper.map(task, request);
+//                repo.save(task);
             } else {
                 throw new RuntimeException("У пользователя нет прав для доступа к этой задаче");
             }

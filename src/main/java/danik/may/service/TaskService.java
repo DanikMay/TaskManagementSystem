@@ -86,7 +86,9 @@ public class TaskService {
 
         if (isValid(updateTaskRequest, isAdmin())) {
             try {
-                dao.update(updateTaskRequest, isAdmin(), getUsername());
+                Task task = new Task();
+                map(task, updateTaskRequest);
+                dao.update(task, isAdmin(), getUsername());
             } catch (RuntimeException ex) {
                 updateTaskResponse.setOperationStatus(getDataBaseErrorOp(updateTaskRequest.getId()));
             }
