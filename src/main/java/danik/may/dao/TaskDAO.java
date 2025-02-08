@@ -15,16 +15,18 @@ import java.util.List;
 public class TaskDAO {
     private final TaskRepository repo;
 
-    //Создаёт задачу
+    /**
+     * Создаёт задачу
+     */
     public void create(Task task) {
         repo.save(task);
     }
 
-    /*
-    Достаёт задачу по id для Админа или Юзера
-    Если задача с таким id не найдена возбуждается исключение
-    Если это юзер, делается проверка на исполнителя, если проверка провалена, возбуждается исключение
-    */
+    /**
+     * Достаёт задачу по id для Админа или Юзера
+     * Если задача с таким id не найдена возбуждается исключение
+     * Если это юзер, делается проверка на исполнителя, если проверка провалена, будет выброшено исключение
+     */
     public Task get(TaskIdRequest taskIdRequest, boolean isAdmin, String userName) throws RuntimeException {
         int id = taskIdRequest.getId();
 
@@ -39,7 +41,9 @@ public class TaskDAO {
         }
     }
 
-    //Возвращает список всех задач для админа или исполнителя
+    /**
+     * Возвращает список всех задач для админа или исполнителя
+     */
     public List<Task> getAll(boolean isAdmin, String userName) {
         List<Task> taskList = null;
 
@@ -51,11 +55,11 @@ public class TaskDAO {
         return taskList;
     }
 
-    /*
-   Обновляет задачу по id для Админа или Юзера
-   Если задача с таким id не найдена возбуждается исключение
-   Если это юзер, делается проверка на исполнителя, если проверка провалена, возбуждается исключение
-   */
+    /**
+     * Обновляет задачу по id для Админа или Юзера
+     * Если задача с таким id не найдена возбуждается исключение
+     * Если это юзер, делается проверка на исполнителя, если проверка провалена, будет выброшено исключение
+     */
     public void update(Task task, boolean isAdmin, String userName) throws RuntimeException {
         int id = task.getId();
 
@@ -71,7 +75,9 @@ public class TaskDAO {
         }
     }
 
-    //Удаляет задачу по id, если задача с таким id существует, иначе выбрасывает исключение
+    /**
+     * Удаляет задачу по id, если задача с таким id существует, иначе выбрасывает исключение
+     */
     public void delete(TaskIdRequest taskIdRequest) throws RuntimeException {
         int id = taskIdRequest.getId();
 
