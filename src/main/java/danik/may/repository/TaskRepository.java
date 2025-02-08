@@ -2,9 +2,11 @@ package danik.may.repository;
 
 import danik.may.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,15 +24,17 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
             nativeQuery = true)
     List<Task> findAllByImplementer(@Param("userName") String userName);
 
-    @Query(value = "Update tasks" +
-            "SET header = CASE WHEN h IS NOT NULL THEN h ELSE header END,\n" +
-            "    description = CASE WHEN d IS NOT NULL THEN d ELSE description END,\n" +
-            "    status = CASE WHEN p IS NOT NULL THEN p ELSE status END,\n" +
-            "    priority = CASE WHEN s IS NOT NULL THEN s ELSE priority END,\n" +
-            "    author = CASE WHEN a IS NOT NULL THEN a ELSE author END,\n" +
-            "    implementer = CASE WHEN i IS NOT NULL THEN i ELSE  implementer END\n" +
-            "WHERE id =:taskId",
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE tasks " +
+            "SET header = CASE WHEN :h IS NOT NULL THEN :h ELSE header END, " +
+            "description = CASE WHEN :d IS NOT NULL THEN :d ELSE description END, " +
+            "status = CASE WHEN :p IS NOT NULL THEN :p ELSE status END, " +
+            "priority = CASE WHEN :s IS NOT NULL THEN :s ELSE priority END, " +
+            "author = CASE WHEN :a IS NOT NULL THEN :a ELSE author END, " +
+            "implementer = CASE WHEN :i IS NOT NULL THEN :i ELSE implementer END " +
+            "WHERE id=:taskId",
             nativeQuery = true)
-    void update(@Param("taskId")int id, @Param("h")String header, @Param("d")String description, @Param("p")String priority,
-                @Param("s")String status, @Param("a")String author, @Param("i")String implementer);
+    void update(@Param("taskId") int id, @Param("h") String header, @Param("d") String description, @Param("p") String priority,
+                @Param("s") String status, @Param("a") String author, @Param("i") String implementer);
 }

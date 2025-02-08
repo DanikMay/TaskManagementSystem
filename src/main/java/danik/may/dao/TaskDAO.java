@@ -63,9 +63,6 @@ public class TaskDAO {
             if (isAdmin || repo.isImplementer(id, userName)) {
                 repo.update(task.getId(), task.getHeader(), task.getDescription(), task.getPriority(), task.getStatus(),
                         task.getAuthor(), task.getImplementer());
-//                Task task = repo.findById(id);
-//                TaskMapper.map(task, request);
-//                repo.save(task);
             } else {
                 throw new RuntimeException("У пользователя нет прав для доступа к этой задаче");
             }
