@@ -1,7 +1,7 @@
 package danik.may.util;
 
-import danik.may.dto.response.task.op_status.Error;
-import danik.may.dto.response.task.op_status.OperationStatus;
+import danik.may.dto.response.task.Error;
+import danik.may.dto.response.task.OperationStatus;
 
 public class OperationStatusUtil {
     public static OperationStatus getSuccessOp() {

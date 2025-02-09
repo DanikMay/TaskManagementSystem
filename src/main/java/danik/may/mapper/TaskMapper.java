@@ -17,7 +17,7 @@ public class TaskMapper {
     /**
      * Обновляет поля задачи данными из запроса, если данные не null
      *
-     * @param task              текущие данные
+     * @param task              сущность для обновления задачи
      * @param updateTaskRequest данные для обновления
      */
     public static void map(Task task, UpdateTaskRequest updateTaskRequest) {

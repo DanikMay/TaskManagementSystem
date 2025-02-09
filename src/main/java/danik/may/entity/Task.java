@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
  */
 @Entity
 @Builder
-
 @Getter
 @Setter
 @NoArgsConstructor

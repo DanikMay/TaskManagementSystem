@@ -1,6 +1,6 @@
 package danik.may.service;
 
-import danik.may.dto.response.JwtAuthenticationResponse;
+import danik.may.dto.response.jwt.JwtAuthenticationResponse;
 import danik.may.dto.request.auth.SignInRequest;
 import danik.may.dto.request.auth.SignUpRequest;
 import danik.may.entity.Role;

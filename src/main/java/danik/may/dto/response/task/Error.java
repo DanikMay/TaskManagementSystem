@@ -1,4 +1,4 @@
-package danik.may.dto.response.task.op_status;
+package danik.may.dto.response.task;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
