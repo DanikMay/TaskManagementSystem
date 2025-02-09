@@ -29,7 +29,7 @@ public class TaskService {
      * Создаёт задачу, если юзер - админ, и формирует ответ
      *
      * @param createTaskRequest данные для создания
-     * @return ответ с данными об ошибке и статусе операции
+     * @return ответ с данными либо об успехе операции, либо об ошибке
      */
     public CreateTaskResponse create(CreateTaskRequest createTaskRequest) {
         Task task = new Task();
@@ -44,7 +44,7 @@ public class TaskService {
      * Достаёт задачу по id, если юзер - админ или исполнитель, и формирует ответ
      *
      * @param taskIdRequest id
-     * @return ответ с данными о задаче, и об ошибке и статусе операции
+     * @return ответ с данными о задаче и успехе операции или об ошибке
      */
     public GetSingleTaskResponse get(TaskIdRequest taskIdRequest) {
         GetSingleTaskResponse singleTaskResponse = new GetSingleTaskResponse();
@@ -63,7 +63,7 @@ public class TaskService {
     /**
      * Достаёт список задач, для админа или исполнителя, и формирует ответ
      *
-     * @return ответ с данными о задачах, и об ошибке и статусе операции
+     * @return ответ с данными о задачах и успехе операции или об ошибке
      */
     public GetAllTaskResponse getAll() {
         GetAllTaskResponse allTaskResponse = new GetAllTaskResponse();
@@ -79,7 +79,7 @@ public class TaskService {
      * Обновляет задачу, если юзер - админ или исполнитель, и формирует ответ
      *
      * @param updateTaskRequest данные для обновления задачи
-     * @return ответ с данными об ошибке и статусе операции
+     * @return ответ с данными либо об успехе операции, либо об ошибке
      */
     public UpdateTaskResponse update(UpdateTaskRequest updateTaskRequest) {
         UpdateTaskResponse updateTaskResponse = new UpdateTaskResponse(getSuccessOp());
@@ -103,7 +103,7 @@ public class TaskService {
      * Удаляет задачу по id, если юзер - админ, и формирует ответ
      *
      * @param taskIdRequest id
-     * @return ответ с данными об ошибке и статусе операции
+     * @return ответ с данными либо об успехе операции, либо об ошибке
      */
     public DeleteTaskResponse delete(TaskIdRequest taskIdRequest) {
         DeleteTaskResponse deleteTaskResponse = new DeleteTaskResponse(getSuccessOp());
