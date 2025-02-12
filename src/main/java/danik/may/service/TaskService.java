@@ -14,7 +14,7 @@ import java.util.List;
 
 import static danik.may.mapper.TaskMapper.map;
 import static danik.may.util.OperationStatusUtil.*;
-import static danik.may.validator.TaskValidator.isValid;
+import static danik.may.validator.TaskValidator.isValidForImplementer;
 
 /**
  * Обрабатывает запросы и формирует ответы для CRUD-операций над задачами
@@ -84,7 +84,7 @@ public class TaskService {
     public UpdateTaskResponse update(UpdateTaskRequest updateTaskRequest) {
         UpdateTaskResponse updateTaskResponse = new UpdateTaskResponse(getSuccessOp());
 
-        if (isValid(updateTaskRequest, isAdmin())) {
+        if (isAdmin() || isValidForImplementer(updateTaskRequest)) {
             try {
                 Task task = new Task();
                 map(task, updateTaskRequest);

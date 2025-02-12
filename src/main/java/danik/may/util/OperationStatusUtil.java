@@ -3,6 +3,9 @@ package danik.may.util;
 import danik.may.dto.response.task.Error;
 import danik.may.dto.response.task.OperationStatus;
 
+/**
+ *
+ */
 public class OperationStatusUtil {
     public static OperationStatus getSuccessOp() {
         OperationStatus operationStatus = new OperationStatus();
