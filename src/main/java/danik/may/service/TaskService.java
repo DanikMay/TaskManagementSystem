@@ -1,53 +1,141 @@
 package danik.may.service;
 
-import danik.may.dto.UpdateTaskRequest;
+import danik.may.dao.TaskDAO;
+import danik.may.dto.request.task.CreateTaskRequest;
+import danik.may.dto.request.task.TaskIdRequest;
+import danik.may.dto.request.task.UpdateTaskRequest;
+import danik.may.dto.response.task.*;
+import danik.may.entity.Role;
 import danik.may.entity.Task;
-import danik.may.mapper.TaskMapper;
-import danik.may.repository.TaskRepository;
+import danik.may.exception.NoAccessForUpdateTaskException;
+import danik.may.exception.TaskIdNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static danik.may.mapper.TaskMapper.map;
+import static danik.may.util.OperationStatusUtil.*;
+import static danik.may.validator.TaskValidator.isValidForImplementer;
+
+/**
+ * Обрабатывает запросы и формирует ответы для CRUD-операций над задачами
+ */
 @Service
 @RequiredArgsConstructor
 public class TaskService {
-    private final TaskRepository repository;
+    private final TaskDAO dao;
+    private final UserService userService;
 
-    public void save(Task task) {
-        repository.save(task);
+    /**
+     * Создаёт задачу, если юзер - админ, и формирует ответ
+     *
+     * @param createTaskRequest данные для создания
+     * @return ответ с данными либо об успехе операции, либо об ошибке
+     */
+    public CreateTaskResponse create(CreateTaskRequest createTaskRequest) {
+        Task task = new Task();
+
+        map(task, createTaskRequest);
+        dao.create(task);
+
+        return new CreateTaskResponse(getSuccessOp());
     }
 
-    public Task get(int id) {
-        Task resultTask = new Task();
-        if (repository.existsById(id)) {
-            resultTask = repository.findById(id);
+    /**
+     * Достаёт задачу по id, если юзер - админ или исполнитель, и формирует ответ
+     *
+     * @param taskIdRequest id
+     * @return ответ с данными о задаче и успехе операции или об ошибке
+     */
+    public GetSingleTaskResponse get(TaskIdRequest taskIdRequest) {
+        GetSingleTaskResponse singleTaskResponse = new GetSingleTaskResponse();
+
+        try {
+            Task task = dao.get(taskIdRequest, isAdmin(), getUsername());
+            map(task, singleTaskResponse);
+            singleTaskResponse.setOperationStatus(getSuccessOp());
+        } catch (TaskIdNotFoundException ex) {
+            singleTaskResponse.setOperationStatus(getDataBaseErrorOp(taskIdRequest.getId()));
+        } catch (NoAccessForUpdateTaskException ex) {
+            singleTaskResponse.setOperationStatus(getAccessErrorOp(getUsername(), taskIdRequest.getId()));
         }
-        return resultTask;
+
+        return singleTaskResponse;
     }
 
-    public List<Task> getAll() {
-        return repository.findAll();
+    /**
+     * Достаёт список задач, для админа или исполнителя, и формирует ответ
+     *
+     * @return ответ с данными о задачах и успехе операции или об ошибке
+     */
+    public GetAllTaskResponse getAll() {
+        GetAllTaskResponse allTaskResponse = new GetAllTaskResponse();
+
+        List<Task> taskList = dao.getAll(isAdmin(), getUsername());
+        map(taskList, allTaskResponse);
+        allTaskResponse.setOperationStatus(getSuccessOp());
+
+        return allTaskResponse;
     }
 
-    public String delete(int id) {
-        String result = String.format("Задача с id: %d не найдена", id);
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            result = String.format("Задача с id: %d успешно удалена", id);
+    /**
+     * Обновляет задачу, если юзер - админ или исполнитель, и формирует ответ
+     *
+     * @param updateTaskRequest данные для обновления задачи
+     * @return ответ с данными либо об успехе операции, либо об ошибке
+     */
+    public UpdateTaskResponse update(UpdateTaskRequest updateTaskRequest) {
+        UpdateTaskResponse updateTaskResponse = new UpdateTaskResponse(getSuccessOp());
+
+        if (isAdmin() || isValidForImplementer(updateTaskRequest)) {
+            try {
+                dao.update(updateTaskRequest, isAdmin(), getUsername());
+            } catch (TaskIdNotFoundException ex) {
+                updateTaskResponse.setOperationStatus(getDataBaseErrorOp(updateTaskRequest.getId()));
+            } catch (NoAccessForUpdateTaskException ex) {
+                updateTaskResponse.setOperationStatus(getAccessErrorOp(getUsername(), updateTaskRequest.getId()));
+            }
+        } else {
+            updateTaskResponse.setOperationStatus(getInvalidTaskRequestErrorOp(getUsername()));
         }
-        return result;
+
+        return updateTaskResponse;
     }
 
-    public String update(UpdateTaskRequest updateTaskRequest) {
-        String result = String.format("Задача с id: %d не найдена", updateTaskRequest.getId());
-        if (repository.existsById(updateTaskRequest.getId())) {
-            Task task = repository.findById(updateTaskRequest.getId());
-            TaskMapper.UpdateTask(task, updateTaskRequest);
-            repository.save(task);
-            result = String.format("Задача с id: %d успешно обновлена", updateTaskRequest.getId());
+    /**
+     * Удаляет задачу по id, если юзер - админ, и формирует ответ
+     *
+     * @param taskIdRequest id
+     * @return ответ с данными либо об успехе операции, либо об ошибке
+     */
+    public DeleteTaskResponse delete(TaskIdRequest taskIdRequest) {
+        DeleteTaskResponse deleteTaskResponse = new DeleteTaskResponse(getSuccessOp());
+
+        try {
+            dao.delete(taskIdRequest);
+            deleteTaskResponse.setOperationStatus(getSuccessOp());
+        } catch (TaskIdNotFoundException ex) {
+            deleteTaskResponse.setOperationStatus(getDataBaseErrorOp(taskIdRequest.getId()));
         }
-        return result;
+
+        return deleteTaskResponse;
+    }
+
+    /**
+     * Проверяет, есть ли у пользователя роль админа
+     * @return результат проверки
+     */
+    private boolean isAdmin() {
+        return userService.getCurrentUser().getRole().equals(Role.ROLE_ADMIN);
+    }
+
+    /**
+     * Достаёт имя текущего пользователя
+     * @return имя
+     */
+    private String getUsername() {
+        return userService.getCurrentUser().getUsername();
     }
 }
 

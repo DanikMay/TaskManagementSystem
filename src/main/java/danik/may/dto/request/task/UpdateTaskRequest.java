@@ -1,15 +1,16 @@
-package danik.may.dto;
+package danik.may.dto.request.task;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class UpdateTaskRequest {
     private int id;
     private String header;
@@ -17,5 +18,5 @@ public class UpdateTaskRequest {
     private String status;
     private String priority;
     private String author;
-    private String executor;
+    private String implementer;
 }

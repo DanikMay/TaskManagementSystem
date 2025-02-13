@@ -13,6 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Данные о пользователе в системе управления задач, которые сохраняются в таблицу БД
+ */
 @Entity
 @Builder
 @Getter
@@ -21,21 +24,36 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "users")
 public class User implements UserDetails {
+    /**
+     * Id пользователя
+     */
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
     @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
     private Long id;
 
+    /**
+     * Имя пользователя
+     */
     @Column(name = "username", unique = true, nullable = false)
     private String username;
 
+    /**
+     * JWT для авторизации пользователя
+     */
     @Column(name = "password", nullable = false)
     private String password;
 
+    /**
+     * Почта пользователя
+     */
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
+    /**
+     * Роль пользователя, может быть ROLE_USER или ROLE_ADMIN
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;

@@ -1,8 +1,8 @@
 package danik.may.service;
 
-import danik.may.dto.JwtAuthenticationResponse;
-import danik.may.dto.SignInRequest;
-import danik.may.dto.SignUpRequest;
+import danik.may.dto.response.jwt.JwtAuthenticationResponse;
+import danik.may.dto.request.auth.SignInRequest;
+import danik.may.dto.request.auth.SignUpRequest;
 import danik.may.entity.Role;
 import danik.may.entity.User;
 import lombok.RequiredArgsConstructor;

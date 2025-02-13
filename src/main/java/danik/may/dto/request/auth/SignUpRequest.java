@@ -1,4 +1,4 @@
-package danik.may.dto;
+package danik.may.dto.request.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
