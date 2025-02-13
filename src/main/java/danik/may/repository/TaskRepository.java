@@ -63,7 +63,6 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
      * @param author      автор задачи
      * @param implementer исполнитель задачи
      */
-    @Transactional
     @Modifying
     @Query(value = "UPDATE tasks " +
             "SET header = CASE WHEN :h IS NOT NULL THEN :h ELSE header END, " +

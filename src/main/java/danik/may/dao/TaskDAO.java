@@ -8,6 +8,7 @@ import danik.may.exception.TaskIdNotFoundException;
 import danik.may.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class TaskDAO {
      * Если задача с таким id не найдена возбуждается исключение
      * Если юзер не админ, делается проверка на исполнителя, если проверка провалена, будет выброшено исключение
      */
+    @Transactional
     public Task get(TaskIdRequest taskIdRequest, boolean isAdmin, String userName) throws NoAccessForUpdateTaskException, TaskIdNotFoundException {
         int id = taskIdRequest.getId();
 
@@ -61,6 +63,7 @@ public class TaskDAO {
      * Если задача с таким id не найдена возбуждается исключение
      * Если юзер не админ, делается проверка на исполнителя, если проверка провалена, будет выброшено исключение
      */
+    @Transactional
     public void update(UpdateTaskRequest updateTaskRequest, boolean isAdmin, String userName) throws NoAccessForUpdateTaskException, TaskIdNotFoundException {
         if (repo.existsById(updateTaskRequest.getId())) {
             if (isAdmin || repo.isImplementer(updateTaskRequest.getId(), userName)) {
@@ -78,6 +81,7 @@ public class TaskDAO {
     /**
      * Удаляет задачу по id, если задача с таким id существует, иначе выбрасывает исключение
      */
+    @Transactional
     public void delete(TaskIdRequest taskIdRequest) throws TaskIdNotFoundException {
         int id = taskIdRequest.getId();
 
