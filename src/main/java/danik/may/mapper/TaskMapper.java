@@ -15,12 +15,15 @@ import java.util.List;
  */
 public class TaskMapper {
     /**
-     * Обновляет поля задачи данными из запроса, если данные не null
+     * Заполняет поля задачи данными из запроса, если данные не null
      *
      * @param task              сущность для обновления задачи
      * @param updateTaskRequest данные для обновления
      */
     public static void map(Task task, UpdateTaskRequest updateTaskRequest) {
+        if (updateTaskRequest.getId() != 0) {
+            task.setId(updateTaskRequest.getId());
+        }
         if (updateTaskRequest.getHeader() != null) {
             task.setHeader(updateTaskRequest.getHeader());
         }
@@ -69,11 +72,11 @@ public class TaskMapper {
      */
     public static void map(Task task, CreateTaskRequest createTaskRequest) {
         task.setHeader(createTaskRequest.getHeader());
-        task.setHeader(createTaskRequest.getDescription());
-        task.setHeader(createTaskRequest.getStatus());
-        task.setHeader(createTaskRequest.getPriority());
-        task.setHeader(createTaskRequest.getAuthor());
-        task.setHeader(createTaskRequest.getImplementer());
+        task.setDescription(createTaskRequest.getDescription());
+        task.setStatus(createTaskRequest.getStatus());
+        task.setPriority(createTaskRequest.getPriority());
+        task.setAuthor(createTaskRequest.getAuthor());
+        task.setImplementer(createTaskRequest.getImplementer());
     }
 
     /**

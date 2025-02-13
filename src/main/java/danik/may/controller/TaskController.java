@@ -33,7 +33,6 @@ public class TaskController {
 
     @GetMapping("/get-all")
     @Operation(summary = "Просмотр всех задач")
-    @PreAuthorize("hasRole('ADMIN')")
     public GetAllTaskResponse getAll() {
         return service.getAll();
     }

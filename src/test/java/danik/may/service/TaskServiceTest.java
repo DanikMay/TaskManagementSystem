@@ -3,11 +3,14 @@ package danik.may.service;
 import danik.may.dao.TaskDAO;
 import danik.may.dto.request.task.TaskIdRequest;
 import danik.may.dto.request.task.UpdateTaskRequest;
+import danik.may.dto.response.task.DeleteTaskResponse;
 import danik.may.dto.response.task.GetSingleTaskResponse;
 import danik.may.dto.response.task.UpdateTaskResponse;
 import danik.may.entity.Role;
 import danik.may.entity.Task;
 import danik.may.entity.User;
+import danik.may.exception.NoAccessForUpdateTaskException;
+import danik.may.exception.TaskIdNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,7 +43,7 @@ class TaskServiceTest {
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        when(dao.get(taskIdRequest, isAdmin, user.getUsername())).thenThrow(new RuntimeException());
+        when(dao.get(taskIdRequest, isAdmin, user.getUsername())).thenThrow(new NoAccessForUpdateTaskException());
 
         //Then
         GetSingleTaskResponse resultTask = taskService.get(taskIdRequest);
@@ -144,12 +147,12 @@ class TaskServiceTest {
 
         TaskIdRequest taskIdRequest = new TaskIdRequest(4);
 
-        User user = User.builder().username("john").role(Role.ROLE_USER).email("john@example.com").build();
+        User user = User.builder().username("john").role(Role.ROLE_ADMIN).email("john@example.com").build();
         boolean isAdmin = true;
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        when(dao.get(taskIdRequest, isAdmin, user.getUsername())).thenThrow(new RuntimeException());
+        when(dao.get(taskIdRequest, isAdmin, user.getUsername())).thenThrow(new TaskIdNotFoundException());
 
         //Then
         GetSingleTaskResponse resultTask = taskService.get(taskIdRequest);
@@ -168,14 +171,13 @@ class TaskServiceTest {
                 "alex", 1);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder().id(1).status("Done").build();
-        Task task = Task.builder().id(1).status("Done").build();
 
         User user = User.builder().username("alex").role(Role.ROLE_USER).email("alex@example.com").build();
         boolean isAdmin = false;
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        doThrow(new RuntimeException()).when(dao).update(task, isAdmin, user.getUsername());
+        doThrow(new NoAccessForUpdateTaskException()).when(dao).update(updateTaskRequest, isAdmin, user.getUsername());
 
         //Then
         UpdateTaskResponse updateTaskResponse = taskService.update(updateTaskRequest);
@@ -188,15 +190,14 @@ class TaskServiceTest {
     @Test
     void updateByImplementer() {
         //Given
-        UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder().id(1).status("Done").build();
-        Task task = Task.builder().id(1).status("Done").build();
+        UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder().id(2).status("Done").build();
 
         User user = User.builder().username("alex").role(Role.ROLE_USER).email("alex@example.com").build();
         boolean isAdmin = false;
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        doNothing().when(dao).update(task, isAdmin, user.getUsername());
+        doNothing().when(dao).update(updateTaskRequest, isAdmin, user.getUsername());
 
         //Then
         UpdateTaskResponse updateTaskResponse = taskService.update(updateTaskRequest);
@@ -209,26 +210,19 @@ class TaskServiceTest {
     void updateByAdmin() {
         //Given
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
-                .id(2)
-                .header("header2")
-                .description("description2")
-                .status("Done")
-                .priority("High")
-                .build();
-        Task task = Task.builder()
-                .id(2)
+                .id(3)
                 .header("header2")
                 .description("description2")
                 .status("Done")
                 .priority("High")
                 .build();
 
-        User user = User.builder().username("alex").role(Role.ROLE_USER).email("alex@example.com").build();
-        boolean isAdmin = false;
+        User user = User.builder().username("alex").role(Role.ROLE_ADMIN).email("alex@example.com").build();
+        boolean isAdmin = true;
 
         //When
         when(userService.getCurrentUser()).thenReturn(user);
-        doThrow(new RuntimeException()).when(dao).update(task, isAdmin, user.getUsername());
+        doNothing().when(dao).update(updateTaskRequest, isAdmin, user.getUsername());
 
         //Then
         UpdateTaskResponse updateTaskResponse = taskService.update(updateTaskRequest);
@@ -240,10 +234,60 @@ class TaskServiceTest {
     @Test
     void updateByWrongId() {
         //Given
+        String expectedErrorTitle = "Ошибка базы данных";
+        String expectedErrorText = String.format("Задача с id: %d не найдена", 4);
+        UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder().id(4).status("Done").build();
+
+        User user = User.builder().username("alex").role(Role.ROLE_USER).email("alex@example.com").build();
+        boolean isAdmin = false;
 
         //When
+        when(userService.getCurrentUser()).thenReturn(user);
+        doThrow(new TaskIdNotFoundException()).when(dao).update(updateTaskRequest, isAdmin, user.getUsername());
 
         //Then
+        UpdateTaskResponse updateTaskResponse = taskService.update(updateTaskRequest);
 
+        assertFalse(updateTaskResponse.getOperationStatus().isSuccess());
+        assertEquals(expectedErrorTitle, updateTaskResponse.getOperationStatus().getError().getTitle());
+        assertEquals(expectedErrorText, updateTaskResponse.getOperationStatus().getError().getText());
+
+    }
+
+
+    @Test
+    void deleteById() {
+        //Given
+        TaskIdRequest taskIdRequest = new TaskIdRequest(1);
+
+        User user = User.builder().username("Sophie").role(Role.ROLE_ADMIN).email("sophie@example.com").build();
+
+        //When
+        doNothing().when(dao).delete(taskIdRequest);
+
+        //Then
+        DeleteTaskResponse deleteTaskResponse = taskService.delete(taskIdRequest);
+
+        assertTrue(deleteTaskResponse.getOperationStatus().isSuccess());
+        assertNull(deleteTaskResponse.getOperationStatus().getError());
+    }
+    @Test
+    void deleteByWrongId() {
+        //Given
+        String expectedErrorTitle = "Ошибка базы данных";
+        String expectedErrorText = String.format("Задача с id: %d не найдена", 2);
+        TaskIdRequest taskIdRequest = new TaskIdRequest(2);
+
+        User user = User.builder().username("Gerard").role(Role.ROLE_ADMIN).email("gerard@example.com").build();
+
+        //When
+        doThrow(new TaskIdNotFoundException()).when(dao).delete(taskIdRequest);
+
+        //Then
+        DeleteTaskResponse deleteTaskResponse = taskService.delete(taskIdRequest);
+
+        assertFalse(deleteTaskResponse.getOperationStatus().isSuccess());
+        assertEquals(expectedErrorTitle, deleteTaskResponse.getOperationStatus().getError().getTitle());
+        assertEquals(expectedErrorText, deleteTaskResponse.getOperationStatus().getError().getText());
     }
 }

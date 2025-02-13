@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
-
 /**
  *  Данные о задаче в системе управления задач, которые сохраняются в таблицу БД
  */

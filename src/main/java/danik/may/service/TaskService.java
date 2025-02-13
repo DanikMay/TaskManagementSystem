@@ -7,6 +7,8 @@ import danik.may.dto.request.task.UpdateTaskRequest;
 import danik.may.dto.response.task.*;
 import danik.may.entity.Role;
 import danik.may.entity.Task;
+import danik.may.exception.NoAccessForUpdateTaskException;
+import danik.may.exception.TaskIdNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,8 +55,10 @@ public class TaskService {
             Task task = dao.get(taskIdRequest, isAdmin(), getUsername());
             map(task, singleTaskResponse);
             singleTaskResponse.setOperationStatus(getSuccessOp());
-        } catch (RuntimeException ex) {
+        } catch (TaskIdNotFoundException ex) {
             singleTaskResponse.setOperationStatus(getDataBaseErrorOp(taskIdRequest.getId()));
+        } catch (NoAccessForUpdateTaskException ex) {
+            singleTaskResponse.setOperationStatus(getAccessErrorOp(getUsername(), taskIdRequest.getId()));
         }
 
         return singleTaskResponse;
@@ -86,11 +90,11 @@ public class TaskService {
 
         if (isAdmin() || isValidForImplementer(updateTaskRequest)) {
             try {
-                Task task = new Task();
-                map(task, updateTaskRequest);
-                dao.update(task, isAdmin(), getUsername());
-            } catch (RuntimeException ex) {
+                dao.update(updateTaskRequest, isAdmin(), getUsername());
+            } catch (TaskIdNotFoundException ex) {
                 updateTaskResponse.setOperationStatus(getDataBaseErrorOp(updateTaskRequest.getId()));
+            } catch (NoAccessForUpdateTaskException ex) {
+                updateTaskResponse.setOperationStatus(getAccessErrorOp(getUsername(), updateTaskRequest.getId()));
             }
         } else {
             updateTaskResponse.setOperationStatus(getInvalidTaskRequestErrorOp(getUsername()));
@@ -111,18 +115,26 @@ public class TaskService {
         try {
             dao.delete(taskIdRequest);
             deleteTaskResponse.setOperationStatus(getSuccessOp());
-        } catch (RuntimeException ex) {
+        } catch (TaskIdNotFoundException ex) {
             deleteTaskResponse.setOperationStatus(getDataBaseErrorOp(taskIdRequest.getId()));
         }
 
         return deleteTaskResponse;
     }
 
-    public boolean isAdmin() {
+    /**
+     * Проверяет, есть ли у пользователя роль админа
+     * @return результат проверки
+     */
+    private boolean isAdmin() {
         return userService.getCurrentUser().getRole().equals(Role.ROLE_ADMIN);
     }
 
-    public String getUsername() {
+    /**
+     * Достаёт имя текущего пользователя
+     * @return имя
+     */
+    private String getUsername() {
         return userService.getCurrentUser().getUsername();
     }
 }

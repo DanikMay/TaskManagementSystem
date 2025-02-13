@@ -33,7 +33,7 @@ public class OperationStatusUtil {
         Error error = new Error();
         error.setTitle("Ошибка валидации");
         error.setText(String.format("У пользователя с именем: %s нет прав на обновление полей: " +
-                "header, description, priority, author, executor", userName));
+                "header, description, priority, author, implementer", userName));
         operationStatus.setError(error);
 
         return operationStatus;
